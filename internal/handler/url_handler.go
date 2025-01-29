@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Dostonlv/url-shortner-http3-based/internal/service"
+	"github.com/MarceloPetrucio/go-scalar-api-reference"
 )
 
 type Handler struct {
@@ -23,6 +24,7 @@ func (h *Handler) InitRoutes() *http.ServeMux {
 	mux.HandleFunc("/shorten", h.handleShorten)
 	mux.HandleFunc("/{short}", h.handleRedirect)
 	mux.HandleFunc("/stats/", h.handleStats)
+	mux.HandleFunc("/docs", h.docs)
 
 	return mux
 }
@@ -31,8 +33,8 @@ func (h *Handler) InitRoutes() *http.ServeMux {
 // @Tags urls
 // @Accept json
 // @Produce json
-// @Param input body models.CreateURLRequest true "URL info"
-// @Success 200 {object} models.URLResponse
+// @Param input body models.URL true "URL info"
+// @Success 200 {object} models.URL
 // @Router /shorten [post]
 func (h *Handler) handleShorten(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -75,7 +77,7 @@ func validateAndFormatURL(url string) string {
 // @Accept json
 // @Produce json
 // @Param short_code path string true "Short code"
-// @Success 302 {object} models.URLResponse
+// @Success 302 {object} models.URL
 // @Router /{short_code} [get]
 // Optimized handleRedirect function
 func (h *Handler) handleRedirect(w http.ResponseWriter, r *http.Request) {
@@ -106,7 +108,7 @@ func (h *Handler) handleRedirect(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param short_code path string true "Short code"
-// @Success 200 {object} models.URLResponse
+// @Success 200 {object} models.URL
 // @Router /stats/{short_code} [get]
 func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -123,4 +125,36 @@ func (h *Handler) handleStats(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(url)
+}
+
+// router.Get("/reference", func(w http.ResponseWriter, r *http.Request) {
+// 	htmlContent, err := scalar.ApiReferenceHTML(&scalar.Options{
+// 		SpecURL: "./docs/swagger.json",
+// 		CustomOptions: scalar.CustomOptions{
+// 			PageTitle: "Simple API",
+// 		},
+// 		DarkMode: true,
+// 	})
+
+// 	if err != nil {
+// 		fmt.Printf("%v", err)
+// 	}
+
+// 	fmt.Fprintln(w, htmlContent)
+// })
+
+func (h *Handler) docs(w http.ResponseWriter, r *http.Request) {
+	htmlContent, err := scalar.ApiReferenceHTML(&scalar.Options{
+		SpecURL: "./docs/swagger.json",
+		CustomOptions: scalar.CustomOptions{
+			PageTitle: "URL Shortener API",
+		},
+		DarkMode: true,
+	})
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+
+	fmt.Fprintln(w, htmlContent)
+
 }

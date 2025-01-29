@@ -1,0 +1,79 @@
+definitions:
+  models.URL:
+    properties:
+      clicks:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      original_url:
+        type: string
+      short_code:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /{short_code}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Short code
+        in: path
+        name: short_code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: Found
+          schema:
+            $ref: '#/definitions/models.URL'
+      summary: Redirect to original URL
+      tags:
+      - urls
+  /shorten:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: URL info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.URL'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.URL'
+      summary: Create short URL
+      tags:
+      - urls
+  /stats/{short_code}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Short code
+        in: path
+        name: short_code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.URL'
+      summary: Get URL stats
+      tags:
+      - urls
+swagger: "2.0"
